@@ -1,0 +1,15 @@
+name: event-winder
+
+version: 1.0.0
+
+crystal: ">= 1.7.0"
+
+description: |
+  Simple event engine based on fibers and channels
+
+repository: "https://github.com/Xanders/event-winder"
+
+authors:
+  - Xanders
+
+license: MIT

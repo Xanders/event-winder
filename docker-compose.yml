@@ -1,0 +1,7 @@
+services:
+  crystal:
+    image: crystallang/crystal:1.7.0-alpine
+    entrypoint: crystal
+    working_dir: /project
+    volumes:
+      - '.:/project'
