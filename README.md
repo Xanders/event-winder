@@ -1,6 +1,7 @@
 # EventWinder
 
 [![GitHub release](https://img.shields.io/github/release/Xanders/event-winder.svg)](https://github.com/Xanders/event-winder/releases)
+[![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://xanders.github.io/event-winder/EventWinder.html)
 
 EventWinder is a simple event engine, that allows
 you to emit events in some parts of the program
