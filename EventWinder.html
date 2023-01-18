@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.6.2">
+<meta name="crystal_docs.project_version" content="main">
+<meta name="crystal_docs.project_name" content="event-winder">
+
+
+
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/doc.js"></script>
+
+  <meta name="repository-name" content="event-winder">
+  <title>EventWinder - event-winder main</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="index.html">
+          event-winder
+        </a>
+      </h1>
+
+      <span class="project-version">
+        main
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="event-winder/EventWinder" data-name="eventwinder">
+      <a href="EventWinder.html">EventWinder</a>
+      
+        <ul>
+  
+  <li class=" " data-id="event-winder/EventWinder/Emitted" data-name="eventwinder::emitted">
+      <a href="EventWinder/Emitted.html">Emitted</a>
+      
+    </li>
+  
+  <li class=" " data-id="event-winder/EventWinder/Handled" data-name="eventwinder::handled">
+      <a href="EventWinder/Handled.html">Handled</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">abstract struct</span> EventWinder
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="EventWinder.html">EventWinder</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="direct-known-subclasses" class="anchor" href="#direct-known-subclasses">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Direct Known Subclasses
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="EventWinder/Emitted.html">EventWinder::Emitted</a></li>
+    
+      <li class="other-type"><a href="EventWinder/Handled.html">EventWinder::Handled</a></li>
+    
+  </ul>
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/Xanders/event-winder/blob/ef27ebb0bb03ad88ccebb4c63e9d145f01ff514e/src/event-winder.cr#L1" target="_blank">
+        event-winder.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#handle_error%28error%3AException%2Cpayload_inspect%3AString%3D%22nopayload%22%29-class-method" class="signature"><strong>.handle_error</strong>(error : Exception, payload_inspect : String = <span class="s">&quot;no payload&quot;</span>)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#initialize-instance-method" class="signature"><strong>#initialize</strong></a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="macro-summary" class="anchor" href="#macro-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#emit%28type%2C%2Apayload%29-macro" class="signature"><strong>emit</strong>(type, *payload)</a>
+        
+          <div class="summary"><p>Emits an event, optionally with <em>payload</em></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#handle_errors_with%28%26block%29-macro" class="signature"><strong>handle_errors_with</strong>(&block)</a>
+        
+          <div class="summary"><p>Defines global error handler for all events without error handlers defined on registration</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#on%28type%2Ccapacity%3D0%2C%26block%29-macro" class="signature"><strong>on</strong>(type, capacity = <span class="n">0</span>, &block)</a>
+        
+          <div class="summary"><p>Creates a handler for the event <em>type</em></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#register%28type%2Cpayload%3Dnil%2Cerror_handler%3Dnil%29-macro" class="signature"><strong>register</strong>(type, payload = <span class="n">nil</span>, error_handler = <span class="n">nil</span>)</a>
+        
+          <div class="summary"><p>Registers a new event and it's payload types</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>
+
+        <a class="method-permalink" href="#new-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Xanders/event-winder/blob/ef27ebb0bb03ad88ccebb4c63e9d145f01ff514e/src/event-winder.cr#L1" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="handle_error(error:Exception,payload_inspect:String=&quot;nopayload&quot;)-class-method">
+      <div class="signature">
+        
+        def self.<strong>handle_error</strong>(error : Exception, payload_inspect : String = <span class="s">&quot;no payload&quot;</span>)
+
+        <a class="method-permalink" href="#handle_error%28error%3AException%2Cpayload_inspect%3AString%3D%22nopayload%22%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Xanders/event-winder/blob/ef27ebb0bb03ad88ccebb4c63e9d145f01ff514e/src/event-winder.cr#L164" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="initialize-instance-method">
+      <div class="signature">
+        
+        def <strong>initialize</strong>
+
+        <a class="method-permalink" href="#initialize-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Xanders/event-winder/blob/ef27ebb0bb03ad88ccebb4c63e9d145f01ff514e/src/event-winder.cr#L1" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="macro-detail" class="anchor" href="#macro-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Detail
+  </h2>
+  
+    <div class="entry-detail" id="emit(type,*payload)-macro">
+      <div class="signature">
+        
+        macro <strong>emit</strong>(type, *payload)
+
+        <a class="method-permalink" href="#emit%28type%2C%2Apayload%29-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Emits an event, optionally with <em>payload</em></p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Xanders/event-winder/blob/ef27ebb0bb03ad88ccebb4c63e9d145f01ff514e/src/event-winder.cr#L36" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="handle_errors_with(&amp;block)-macro">
+      <div class="signature">
+        
+        macro <strong>handle_errors_with</strong>(&block)
+
+        <a class="method-permalink" href="#handle_errors_with%28%26block%29-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Defines global error handler for all events
+without error handlers defined on registration</p>
+<p>See <em>block</em> arguments description at <code><a href="EventWinder.html#register%28type%2Cpayload%3Dnil%2Cerror_handler%3Dnil%29-macro">register</a></code> macro.</p>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.handle_errors_with <span class="k">do</span>
+  puts <span class="s">&quot;</span><span class="i">#{</span><span class="k">self</span>.name<span class="i">}</span><span class="s"> event failed to handle with </span><span class="i">#{</span>error<span class="i">}</span><span class="s"> error, payload was </span><span class="i">#{</span>payload_inspect<span class="i">}</span><span class="s">&quot;</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Xanders/event-winder/blob/ef27ebb0bb03ad88ccebb4c63e9d145f01ff514e/src/event-winder.cr#L175" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="on(type,capacity=0,&amp;block)-macro">
+      <div class="signature">
+        
+        macro <strong>on</strong>(type, capacity = <span class="n">0</span>, &block)
+
+        <a class="method-permalink" href="#on%28type%2Ccapacity%3D0%2C%26block%29-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a handler for the event <em>type</em></p>
+<p>The <em>block</em> should be provided where the arguments
+depend on the payload for this event type:</p>
+<ul>
+<li>with no payload block should not have arguments</li>
+<li>with non-tuple payload block should have one argument</li>
+<li>with tuple payload number of arguments should match the tuple's size</li>
+</ul>
+<p>You can use <em>capacity</em> argument in the same way
+as in buffered channels:
+https://crystal-lang.org/reference/latest/guides/concurrency.html#buffered-channels</p>
+<p>Usually you should not use it because every emit
+performs in its own fiber.</p>
+<p><span class="flag orange">TODO</span>  specs for <em>capacity</em> argument, is it possible?</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Xanders/event-winder/blob/ef27ebb0bb03ad88ccebb4c63e9d145f01ff514e/src/event-winder.cr#L87" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="register(type,payload=nil,error_handler=nil)-macro">
+      <div class="signature">
+        
+        macro <strong>register</strong>(type, payload = <span class="n">nil</span>, error_handler = <span class="n">nil</span>)
+
+        <a class="method-permalink" href="#register%28type%2Cpayload%3Dnil%2Cerror_handler%3Dnil%29-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Registers a new event and it's payload types</p>
+<p>The <em>payload</em> should be a type or tuple of types.
+It cannot be explicit <em>Nil</em> because it's used
+implicitly for no-payload events.</p>
+<p>The <em>error_handler</em> should be a proc where you can
+access <em>error</em> variable with an exception
+and <em>payload_inspect</em> variable with a string
+representation of a payload provided on <em>emit</em>.
+You also can use <em>self.name</em> to get the current
+event type, which is useful for global error
+handler (see <code><a href="EventWinder.html#handle_errors_with%28%26block%29-macro">handle_errors_with</a></code>).</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Xanders/event-winder/blob/ef27ebb0bb03ad88ccebb4c63e9d145f01ff514e/src/event-winder.cr#L15" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+</div>
+
+</body>
+</html>

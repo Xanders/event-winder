@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.6.2">
+<meta name="crystal_docs.project_version" content="main">
+<meta name="crystal_docs.project_name" content="event-winder">
+
+
+
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/doc.js"></script>
+
+  <meta name="repository-name" content="event-winder">
+  <title>event-winder main</title>
+  <script type="text/javascript">
+  CrystalDocs.base_path = "";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="index.html">
+          event-winder
+        </a>
+      </h1>
+
+      <span class="project-version">
+        main
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent " data-id="event-winder/EventWinder" data-name="eventwinder">
+      <a href="EventWinder.html">EventWinder</a>
+      
+        <ul>
+  
+  <li class=" " data-id="event-winder/EventWinder/Emitted" data-name="eventwinder::emitted">
+      <a href="EventWinder/Emitted.html">Emitted</a>
+      
+    </li>
+  
+  <li class=" " data-id="event-winder/EventWinder/Handled" data-name="eventwinder::handled">
+      <a href="EventWinder/Handled.html">Handled</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1><a id="event-winder" class="anchor" href="#event-winder">  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>EventWinder</h1>
+<p><a href="https://github.com/Xanders/event-winder/releases"><img src="https://img.shields.io/github/release/Xanders/event-winder.svg" alt="GitHub release" /></a></p>
+<p>EventWinder is a simple event engine, that allows
+you to emit events in some parts of the program
+and handle them in other parts.</p>
+<p>For example, in an online game when a user was
+connected the achievement, promotion, monitoring,
+and friends notification subsystems can
+independently react to this event.</p>
+<p>It's better than calling all the subsystems directly
+because you can plug those subsystems in and unplug
+them without touching the user's connection code.</p>
+<p>For example, with events, all the achievements logic
+can be described in each achievement file, and not
+all around the codebase.</p>
+<p>EventWinder works on Crystal's fiber and channels,
+provides error handling and simple monitoring.</p>
+<h2><a id="installation" class="anchor" href="#installation">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Installation</h2>
+<ol>
+<li>
+<p>Add the dependency to your <code>shard.yml</code>:</p>
+<pre><code class="language-yaml">dependencies:
+  event-winder:
+    github: Xanders/event-winder</code></pre>
+</li>
+<li>
+<p>Run <code>shards install</code></p>
+</li>
+</ol>
+<h2><a id="usage" class="anchor" href="#usage">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Usage</h2>
+<p>First, you need to register the event.</p>
+<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;event-winder&quot;</span>
+
+<span class="t">EventWinder</span>.register <span class="t">MyCoolEvent</span></code></pre>
+<p>The <code>MyCoolEvent</code> type will be created.</p>
+<p>Then you should declare the handlers.</p>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.on <span class="t">MyCoolEvent</span> <span class="k">do</span>
+  puts <span class="s">&quot;Some cool event just happend!&quot;</span>
+<span class="k">end</span>
+
+<span class="t">EventWinder</span>.on <span class="t">MyCoolEvent</span> <span class="k">do</span>
+  puts <span class="s">&quot;Wow, I can have any number of handlers!&quot;</span>
+<span class="k">end</span></code></pre>
+<p>Finally, emit the event!</p>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.emit <span class="t">MyCoolEvent</span> <span class="c"># Shows two strings on the screen</span></code></pre>
+<h3><a id="scope" class="anchor" href="#scope">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Scope</h3>
+<p>You can register events in the subsystem where
+they will be emitted.</p>
+<pre><code class="language-crystal"><span class="k">struct</span> <span class="t">User</span>
+  <span class="t">EventWinder</span>.register <span class="t">Connected</span>
+  <span class="t">EventWinder</span>.register <span class="t">Disconnected</span>
+<span class="k">end</span></code></pre>
+<p>In this case, the type will be created
+with a scope prefix.</p>
+<pre><code class="language-crystal"><span class="k">module</span> <span class="t">UsefulLogs</span>
+  <span class="t">EventWinder</span>.on <span class="t">User</span><span class="t">::</span><span class="t">Connected</span> <span class="k">do</span>
+    puts <span class="s">&quot;Unbelievable! Someone connected!&quot;</span>
+    puts <span class="s">&quot;Hope it&#39;s not me...&quot;</span>
+  <span class="k">end</span>
+
+  <span class="t">EventWinder</span>.on <span class="t">User</span><span class="t">::</span><span class="t">Disconnected</span> <span class="k">do</span>
+    puts <span class="s">&quot;Oh no, user gone! :(&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+<h3><a id="payload" class="anchor" href="#payload">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Payload</h3>
+<p>Events also can have a payload, which you should
+provide when emitting and have access to when handling.
+You should declare the payload type on registration.</p>
+<pre><code class="language-crystal"><span class="k">struct</span> <span class="t">User</span>
+  <span class="t">EventWinder</span>.register <span class="t">Connected</span>, payload: <span class="t">User</span>
+<span class="k">end</span>
+
+<span class="k">module</span> <span class="t">UsefulLogs</span>
+  <span class="t">EventWinder</span>.on <span class="t">User</span><span class="t">::</span><span class="t">Connected</span> <span class="k">do</span> <span class="o">|</span>user<span class="o">|</span>
+    puts <span class="s">&quot;I&#39;m the greatest spy, I know </span><span class="i">#{</span>user.name<span class="i">}</span><span class="s"> just connected!&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+user <span class="o">=</span> <span class="t">User</span>.new
+<span class="t">EventWinder</span>.emit <span class="t">User</span><span class="t">::</span><span class="t">Connected</span>, user</code></pre>
+<p>You can use several objects in the payload via tuples.</p>
+<pre><code class="language-crystal"><span class="k">struct</span> <span class="t">User</span>
+  <span class="t">EventWinder</span>.register <span class="t">Connected</span>, payload: {<span class="t">String</span>, <span class="t">Int32</span>}
+<span class="k">end</span>
+
+<span class="k">module</span> <span class="t">UsefulLogs</span>
+  <span class="t">EventWinder</span>.on <span class="t">User</span><span class="t">::</span><span class="t">Connected</span> <span class="k">do</span> <span class="o">|</span>name, visits<span class="o">|</span>
+    puts <span class="s">&quot;</span><span class="i">#{</span>name<span class="i">}</span><span class="s"> visited us </span><span class="i">#{</span>visits<span class="i">}</span><span class="s"> times&quot;</span>
+    puts <span class="s">&quot;It&#39;s our most loyal fun!!!&quot;</span> <span class="k">if</span> visits <span class="o">&gt;</span> <span class="n">5</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="t">EventWinder</span>.emit <span class="t">User</span><span class="t">::</span><span class="t">Connected</span>, <span class="s">&quot;John Smith&quot;</span>, <span class="n">8</span></code></pre>
+<h3><a id="error-handling" class="anchor" href="#error-handling">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Error handling</h3>
+<p>There are several ways to deal with errors in event handlers.</p>
+<ul>
+<li>You can define a global error handler for all the events:</li>
+</ul>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.handle_errors_with <span class="k">do</span>
+  puts <span class="s">&quot;</span><span class="i">#{</span><span class="k">self</span>.name<span class="i">}</span><span class="s"> event failed to handle with </span><span class="i">#{</span>error<span class="i">}</span><span class="s"> error, payload was </span><span class="i">#{</span>payload_inspect<span class="i">}</span><span class="s">&quot;</span>
+<span class="k">end</span></code></pre>
+<p>There are two magic variables available in the block:
+<code>error</code> for exception object and <code>payload_inspect</code>
+for text representation of a payload passed to <code>emit</code>.
+You also can use <code>self.name</code> to get current event.</p>
+<ul>
+<li>You can define a handler for events of a specific type:</li>
+</ul>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.register <span class="t">MyVerySafeEvent</span>, error_handler: <span class="o">-&gt;</span>{
+  puts <span class="s">&quot;I cannot believe! It was the best one! :(&quot;</span>
+}</code></pre>
+<p>The same <code>error</code> and <code>payload_inspect</code> variables are available.</p>
+<ul>
+<li>You can use your own <code>begin-rescue-end</code> block in the specific handler:</li>
+</ul>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.on <span class="t">SomeBoringEvent</span> <span class="k">do</span>
+  <span class="k">begin</span>
+    raise <span class="s">&quot;You shall not pass!&quot;</span>
+  <span class="k">rescue</span> error
+    puts <span class="s">&quot;I have a sneaky way!&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+<p>If you do not use any of them for some handler, the program
+will crash at the first error that occurs in it.</p>
+<p><strong>Note:</strong> both global and per-event handlers are not capturing
+the context. That does not work:</p>
+<pre><code class="language-crystal">my_shiny_local_variable <span class="o">=</span> <span class="s">&quot;Wow, so cool, wuf-wuf!&quot;</span>
+
+<span class="t">EventWinder</span>.handle_errors_with <span class="k">do</span>
+  my_shiny_local_variable <span class="c"># Ooops! Not available!</span>
+<span class="k">end</span></code></pre>
+<h3><a id="monitoring" class="anchor" href="#monitoring">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Monitoring</h3>
+<p>EventWinder use EventWinder for monitoring. :)
+There are two events you can handle for this goal:</p>
+<ul>
+<li><code><a href="EventWinder/Emitted.html">EventWinder::Emitted</a></code> event firing <strong>before</strong> emitting with following payload:
+<ul>
+<li><code>event_name : String</code></li>
+<li><code>emit_time : Time</code> (usually equals to <code>Time.utc</code> except in the case of a lot of handlers)</li>
+<li><code>number_of_handlers : Int32</code></li>
+</ul>
+</li>
+<li><code><a href="EventWinder/Handled.html">EventWinder::Handled</a></code> event firing <strong>after</strong> handling with following payload:
+<ul>
+<li><code>event_name : String</code></li>
+<li><code>emit_time : Time</code></li>
+<li><code>queue_time_span : Time::Span</code> (time between emitting and start of handling)</li>
+<li><code>handle_time_span : Time::Span</code> (time between start and finish of handling)</li>
+<li><code>success : Bool</code> (<code>true</code> if it was handled without exceptions, <code>false</code> otherwise)</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.on <span class="t">EventWinder</span><span class="t">::</span><span class="t">Emitted</span> <span class="k">do</span> <span class="o">|</span>event_name, emit_time, number_of_handlers<span class="o">|</span>
+  puts <span class="s">&quot;</span><span class="i">#{</span>emit_time<span class="i">}</span><span class="s"> | The </span><span class="i">#{</span>event_name<span class="i">}</span><span class="s"> event was emitted for </span><span class="i">#{</span>number_of_handlers<span class="i">}</span><span class="s"> handlers&quot;</span>
+
+  <span class="t">SomeExternalMonitoring</span>.increase <span class="s">&quot;emitted_events&quot;</span>, by: number_of_handlers
+<span class="k">end</span>
+
+<span class="t">EventWinder</span>.on <span class="t">EventWinder</span><span class="t">::</span><span class="t">Handled</span> <span class="k">do</span> <span class="o">|</span>event_name, emit_time, queue_time_span, handle_time_span, success<span class="o">|</span>
+  puts <span class="s">&quot;</span><span class="i">#{</span><span class="t">Time</span>.utc<span class="i">}</span><span class="s"> | The </span><span class="i">#{</span>event_name<span class="i">}</span><span class="s"> event was handled </span><span class="i">#{</span>success ? <span class="s">&quot;successfully&quot;</span> : <span class="s">&quot;with exception&quot;</span><span class="i">}</span><span class="s"> in </span><span class="i">#{</span>queue_time_span <span class="o">+</span> handle_time_span<span class="i">}</span><span class="s">&quot;</span>
+
+  <span class="t">SomeExternalMonitoring</span>.increase <span class="s">&quot;handled_events&quot;</span>, by: <span class="n">1</span>
+  <span class="t">SomeExternalMonitoring</span>.increase <span class="s">&quot;errors_in_events&quot;</span>, by: <span class="n">1</span> <span class="k">unless</span> success
+  <span class="t">SomeExternalMonitoring</span>.set <span class="s">&quot;queue_alert&quot;</span> <span class="k">if</span> queue_time_span <span class="o">&gt;</span> <span class="n">1</span>.second
+  <span class="t">SomeExternalMonitoring</span>.set <span class="s">&quot;handler_alert&quot;</span> <span class="k">if</span> handle_time_span <span class="o">&gt;</span> <span class="n">10</span>.seconds
+<span class="k">end</span></code></pre>
+<p>It's a good idea to have some external monitoring system for
+<code>queue_time_span</code>, <code>handle_time_span</code>, and <code>success</code> variables,
+as well as the difference between the number of <code>Emitted</code> events
+multiplied to <code>number_of_handlers</code> and number of <code>Handled</code>
+events: it always should be near zero.</p>
+<p>Monitoring events, of course, does not cause other
+monitoring events.</p>
+<p>You cannot access events payload in monitoring events
+for performance reasons.</p>
+<p>Please keep in mind that every handler for those two events
+will lead to performance degradation, as well as any monitoring.</p>
+<h2><a id="performance" class="anchor" href="#performance">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Performance</h2>
+<p>EventWinder was built with the compromise between performance
+and the principle of less surprise. Every <code>emit</code> causes
+the creation of a fiber for every handler for this event.
+Only sending to the handler's channel performing in that fiber.
+So, even when some handler is slow, others do not stop.</p>
+<p>On other hand, there is only one fiber for each handler
+to run handling code. So if some handling process is slow,
+a new event of the same type for this handler will wait in
+a queue. Queue exists only in memory, so interrupting
+the program will cause the loss of all events. So,
+<strong>EventWinder guarantees at-most-once delivery and order
+of events in the same handler</strong>. Queues are limited by
+the possible number of fibers.</p>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.register <span class="t">SomeEvent</span>, payload: <span class="t">String</span>
+
+<span class="t">EventWinder</span>.on <span class="t">SomeEvent</span> <span class="k">do</span> <span class="o">|</span>message<span class="o">|</span>
+  sleep rand
+  puts message
+<span class="k">end</span>
+
+<span class="t">EventWinder</span>.on <span class="t">SomeEvent</span> <span class="k">do</span> <span class="o">|</span>message<span class="o">|</span>
+  puts <span class="s">&quot;Fast!&quot;</span>
+<span class="k">end</span>
+
+<span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>, <span class="s">&quot;One&quot;</span>
+<span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>, <span class="s">&quot;Two&quot;</span>
+<span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>, <span class="s">&quot;Three&quot;</span>
+
+<span class="c"># Fast!</span>
+<span class="c"># Fast!</span>
+<span class="c"># Fast!</span>
+<span class="c"># One</span>
+<span class="c"># Two</span>
+<span class="c"># Three</span></code></pre>
+<p>As a side effect of such design, you cannot modify local
+variables in the handler:</p>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.register <span class="t">SomeEvent</span>
+
+variable <span class="o">=</span> <span class="s">&quot;initial&quot;</span>
+
+normal_proc <span class="o">=</span> <span class="o">-&gt;</span> <span class="k">do</span>
+  variable <span class="o">=</span> <span class="s">&quot;modified_from_proc&quot;</span>
+<span class="k">end</span>
+
+normal_proc.call
+puts variable <span class="c"># modified_from_proc</span>
+
+<span class="t">EventWinder</span>.on <span class="t">SomeEvent</span> <span class="k">do</span>
+  puts variable <span class="c"># you can read variables</span>
+  variable <span class="o">=</span> <span class="s">&quot;modified_from_handler&quot;</span> <span class="c"># but modify only local copies</span>
+<span class="k">end</span>
+
+<span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>
+
+puts variable <span class="c"># modified_from_proc</span></code></pre>
+<p>But mutable structures are OK:</p>
+<pre><code class="language-crystal">array <span class="o">=</span> <span class="o">[]</span> <span class="k">of</span> <span class="t">String</span>
+
+<span class="t">EventWinder</span>.on <span class="t">SomeEvent</span> <span class="k">do</span>
+  array.push <span class="s">&quot;Mutable structures are bad (or not)&quot;</span>
+<span class="k">end</span>
+
+<span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>
+
+puts array <span class="c"># [&quot;Mutable structures are bad (or not)&quot;]</span></code></pre>
+<p>There are a few other possible design choices. For example,
+I can emit the event without creating a fiber. In this case,
+every <code>emit</code> will stop until the last handler will receive
+the event. However, there is no problem with only one handler
+or with rare events.</p>
+<p>The other possible design is not to use channels and handling
+fiber, but to perform the handler code in the emitting fiber.
+In this case, the event order cannot be guaranteed, which
+can be critical in a lot of cases.</p>
+<p>Finally, there is an option not to use fibers and channels
+at all. In this case, emit will stop until all the handlers
+finish their job, which is usually the worst case.</p>
+<p>EventWinder is not designed to fit every case, but only
+the most simple and common ones. Also, it is designed for
+real-time systems with a number of simultaneous events
+in order of thousands. And it is absolutely not designed
+for communications outside of one process.</p>
+<h2><a id="development" class="anchor" href="#development">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Development</h2>
+<p>I'm using <a href="https://www.docker.com">Docker</a> for library development.
+If you have Docker available, you can use the <code>make</code> command
+to see the help, powered by <a href="https://github.com/Xanders/make-help">make-help</a> project.
+There are commands for testing, formatting, and documentation.</p>
+<h2><a id="contributing" class="anchor" href="#contributing">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Contributing</h2>
+<ol>
+<li>Fork it (<a href="https://github.com/Xanders/event-winder/fork">https://github.com/Xanders/event-winder/fork</a>)</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create a new Pull Request</li>
+</ol>
+</div>
+</body>
+</html>
