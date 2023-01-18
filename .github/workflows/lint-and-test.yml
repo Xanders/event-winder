@@ -1,0 +1,16 @@
+name: Lint and Test
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+      - name: Run linter
+        run: crystal tool format --check
+      - name: Run tests
+        run: export EVENT_WINDER_RUNTIME_ERRORS=true && crystal spec
