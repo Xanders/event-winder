@@ -1,4 +1,34 @@
 abstract struct EventWinder
+  @@pending_handlings = Atomic(Int32).new(0)
+
+  # Number of handler calls that were emitted but have not finished yet.
+  def self.pending_handlings : Int32
+    @@pending_handlings.get
+  end
+
+  # Waits until all handler calls emitted before this point finish, or until
+  # *timeout* expires. Returns `true` when the queue is idle.
+  #
+  # Call this after stopping event producers during graceful shutdown.
+  def self.drain(timeout : Time::Span = 5.seconds) : Bool
+    deadline = Time.monotonic + timeout
+    loop do
+      return true if pending_handlings == 0
+      return false if Time.monotonic >= deadline
+      sleep 1.millisecond
+    end
+  end
+
+  # :nodoc:
+  def self.handling_started
+    @@pending_handlings.add(1)
+  end
+
+  # :nodoc:
+  def self.handling_finished
+    @@pending_handlings.sub(1)
+  end
+
   # Registers a new event and it's payload types
   #
   # The *payload* should be a type or tuple of types.
@@ -41,6 +71,7 @@ abstract struct EventWinder
       %number_of_handlers = {{type}}::HANDLERS.size
 
       EventWinder::Emitted::HANDLERS.each do |%handler|
+        EventWinder.handling_started
         spawn name: "EventWinder::Emitted event-winder emitter" do
           %handler.send({
             %emit_time,
@@ -53,6 +84,7 @@ abstract struct EventWinder
     end
 
     {{type}}::HANDLERS.each do |%handler|
+      EventWinder.handling_started
       spawn name: "{{type}} event-winder emitter" do
         %handler.send(
           {% if payload.size > 0 %}
@@ -135,6 +167,7 @@ abstract struct EventWinder
               %success = !%error
 
               EventWinder::Handled::HANDLERS.each do |%handler|
+                EventWinder.handling_started
                 spawn name: "EventWinder::Handled event-winder emitter" do
                   %handler.send({
                     %emit_time,
@@ -147,6 +180,7 @@ abstract struct EventWinder
                 end
               end
             end
+            EventWinder.handling_finished
           end
         end
       end
