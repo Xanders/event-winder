@@ -232,6 +232,25 @@ for performance reasons.
 Please keep in mind that every handler for those two events
 will lead to performance degradation, as well as any monitoring.
 
+## Graceful shutdown
+
+Stop event producers first, then wait for already emitted handler calls with
+`drain`. It returns `true` when all handlers finished and `false` when the
+deadline expired:
+
+```crystal
+server.close
+
+unless EventWinder.drain(5.seconds)
+  Log.warn { "Event handlers did not drain before shutdown" }
+end
+```
+
+`EventWinder.pending_handlings` exposes the current number of queued or active
+handler calls for health checks and tests. `drain` does not make the in-memory
+queue durable and cannot protect events emitted concurrently after draining
+starts.
+
 ## Performance
 
 EventWinder was built with the compromise between performance

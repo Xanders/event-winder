@@ -5,10 +5,12 @@ EventWinder.register NegativeTest
 EventWinder.register MultipleHandlers
 EventWinder.register MultipleEmits
 EventWinder.register SlowHandlers
+EventWinder.register DrainCompletes
+EventWinder.register DrainTimesOut
 EventWinder.register NoHandlers
 EventWinder.register MonitorEmitting
 EventWinder.register MonitorSuccessfulHandling
-EventWinder.register MonitorFailedHandling, error_handler: ->{}
+EventWinder.register MonitorFailedHandling, error_handler: -> { }
 
 struct SomeScope
   EventWinder.register ScopedOne
@@ -24,7 +26,7 @@ end
 EventWinder.register WithoutErrorHandler
 
 SPECIFIC_ERROR_HANDLER_CHANNEL = Channel(Bool).new
-EventWinder.register WithErrorHandler, error_handler: ->{
+EventWinder.register WithErrorHandler, error_handler: -> {
   SPECIFIC_ERROR_HANDLER_CHANNEL.send true
 }
 
@@ -122,6 +124,33 @@ describe EventWinder do
     when timeout 1.second
       raise "Events does not work!"
     end
+  end
+
+  it "drains events emitted before graceful shutdown" do
+    handled = false
+    EventWinder.on DrainCompletes do
+      sleep 20.milliseconds
+      handled = true
+    end
+
+    EventWinder.emit DrainCompletes
+
+    EventWinder.drain(1.second).should be_true
+    handled.should be_true
+    EventWinder.pending_handlings.should eq 0
+  end
+
+  it "returns false when the drain deadline expires" do
+    release = Channel(Nil).new
+    EventWinder.on DrainTimesOut do
+      release.receive
+    end
+
+    EventWinder.emit DrainTimesOut
+
+    EventWinder.drain(5.milliseconds).should be_false
+    release.send nil
+    EventWinder.drain(1.second).should be_true
   end
 
   it "does not stuck on slow handlers" do
