@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.6.2">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="event-winder">
 
@@ -22,9 +23,14 @@
 
 <svg class="hidden">
   <symbol id="octicon-link" viewBox="0 0 16 16">
-    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+    <path fill="currentColor" fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
   </symbol>
 </svg>
+<input type="checkbox" id="sidebar-btn">
+<label for="sidebar-btn" id="sidebar-btn-label">
+  <svg class="open" xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 512 512"><title>Open Sidebar</title><path fill="currentColor" d="M80 96v64h352V96H80zm0 112v64h352v-64H80zm0 112v64h352v-64H80z"></path></svg>
+  <svg class="close" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 512 512"><title>Close Sidebar</title><path fill="currentColor" d="m118.6 73.4-45.2 45.2L210.7 256 73.4 393.4l45.2 45.2L256 301.3l137.4 137.3 45.2-45.2L301.3 256l137.3-137.4-45.2-45.2L256 210.7Z"></path></svg>
+</label>
 <div class="sidebar">
   <div class="sidebar-header">
     <div class="search-box">
@@ -80,12 +86,16 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">abstract struct</span> EventWinder
+  <span class="kind">
+    abstract struct
+  </span> EventWinder
 
 </h1>
 
 
   <ul class="superclass-hierarchy"><li class="superclass"><a href="EventWinder.html">EventWinder</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+
+
 
 
 
@@ -129,7 +139,7 @@
   </h2>
   
     
-      <a href="https://github.com/Xanders/event-winder/blob/bc3a9cad2a242959e30618cc2f21b23a1a0e9320/src/event-winder.cr#L1" target="_blank">
+      <a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L1" target="_blank">
         event-winder.cr
       </a>
     
@@ -140,6 +150,7 @@
 
 
 
+  
   <h2>
     <a id="constructors" class="anchor" href="#constructors">
   <svg class="octicon-link" aria-hidden="true">
@@ -158,7 +169,7 @@
   </ul>
 
 
-
+  
   <h2>
     <a id="class-method-summary" class="anchor" href="#class-method-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -170,33 +181,28 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
+        <a href="#drain%28timeout%3ATime%3A%3ASpan%3D5.seconds%29%3ABool-class-method" class="signature"><strong>.drain</strong>(timeout : Time::Span = <span class="n">5</span>.seconds) : Bool</a>
+        
+          <div class="summary"><p>Waits until all handler calls emitted before this point finish, or until <em>timeout</em> expires.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
         <a href="#handle_error%28error%3AException%2Cpayload_inspect%3AString%3D%22nopayload%22%29-class-method" class="signature"><strong>.handle_error</strong>(error : Exception, payload_inspect : String = <span class="s">&quot;no payload&quot;</span>)</a>
         
       </li>
     
-  </ul>
-
-
-
-  <h2>
-    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Summary
-  </h2>
-  <ul class="list-summary">
-    
       <li class="entry-summary">
-        <a href="#initialize-instance-method" class="signature"><strong>#initialize</strong></a>
+        <a href="#pending_handlings%3AInt32-class-method" class="signature"><strong>.pending_handlings</strong> : Int32</a>
+        
+          <div class="summary"><p>Number of handler calls that were emitted but have not finished yet.</p></div>
         
       </li>
     
   </ul>
 
 
-
+  
   <h2>
     <a id="macro-summary" class="anchor" href="#macro-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -238,42 +244,70 @@
   </ul>
 
 
-
-<div class="methods-inherited">
   
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
     
+      <li class="entry-summary">
+        <a href="#initialize-instance-method" class="signature"><strong>#initialize</strong></a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <div class="methods-inherited">
+    
+      
+
+
+      
+
+
+      
+
+
+      
 
 
     
+      
+
+
+      
+
+
+      
+
+
+      
 
 
     
+      
 
+
+      
+
+
+      
+
+
+      
+
+
+    
+  </div>
 
   
-    
-
-
-    
-
-
-    
-
-
-  
-    
-
-
-    
-
-
-    
-
-
-  
-</div>
-
-
   <h2>
     <a id="constructor-detail" class="anchor" href="#constructor-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -294,14 +328,14 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/Xanders/event-winder/blob/bc3a9cad2a242959e30618cc2f21b23a1a0e9320/src/event-winder.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
   
 
 
-
+  
   <h2>
     <a id="class-method-detail" class="anchor" href="#class-method-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -310,6 +344,29 @@
 </a>
     Class Method Detail
   </h2>
+  
+    <div class="entry-detail" id="drain(timeout:Time::Span=5.seconds):Bool-class-method">
+      <div class="signature">
+        
+        def self.<strong>drain</strong>(timeout : Time::Span = <span class="n">5</span>.seconds) : Bool
+
+        <a class="method-permalink" href="#drain%28timeout%3ATime%3A%3ASpan%3D5.seconds%29%3ABool-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Waits until all handler calls emitted before this point finish, or until
+<em>timeout</em> expires. Returns <code>true</code> when the queue is idle.</p>
+<p>Call this after stopping event producers during graceful shutdown.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L13" target="_blank">View source</a>]
+        
+      </div>
+    </div>
   
     <div class="entry-detail" id="handle_error(error:Exception,payload_inspect:String=&quot;nopayload&quot;)-class-method">
       <div class="signature">
@@ -322,42 +379,35 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/Xanders/event-winder/blob/bc3a9cad2a242959e30618cc2f21b23a1a0e9320/src/event-winder.cr#L164" target="_blank">View source</a>]
+          [<a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L198" target="_blank">View source</a>]
         
       </div>
     </div>
   
-
-
-
-  <h2>
-    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="initialize-instance-method">
+    <div class="entry-detail" id="pending_handlings:Int32-class-method">
       <div class="signature">
         
-        def <strong>initialize</strong>
+        def self.<strong>pending_handlings</strong> : Int32
 
-        <a class="method-permalink" href="#initialize-instance-method">#</a>
+        <a class="method-permalink" href="#pending_handlings%3AInt32-class-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Number of handler calls that were emitted but have not finished yet.</p>
+        </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/Xanders/event-winder/blob/bc3a9cad2a242959e30618cc2f21b23a1a0e9320/src/event-winder.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L5" target="_blank">View source</a>]
         
       </div>
     </div>
   
 
 
-
+  
   <h2>
     <a id="macro-detail" class="anchor" href="#macro-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -383,7 +433,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/Xanders/event-winder/blob/bc3a9cad2a242959e30618cc2f21b23a1a0e9320/src/event-winder.cr#L36" target="_blank">View source</a>]
+          [<a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L66" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -409,7 +459,7 @@ without error handlers defined on registration</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/Xanders/event-winder/blob/bc3a9cad2a242959e30618cc2f21b23a1a0e9320/src/event-winder.cr#L175" target="_blank">View source</a>]
+          [<a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L209" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -443,7 +493,7 @@ performs in its own fiber.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/Xanders/event-winder/blob/bc3a9cad2a242959e30618cc2f21b23a1a0e9320/src/event-winder.cr#L87" target="_blank">View source</a>]
+          [<a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L119" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -474,11 +524,40 @@ handler (see <code><a href="EventWinder.html#handle_errors_with%28%26block%29-ma
       <br/>
       <div>
         
-          [<a href="https://github.com/Xanders/event-winder/blob/bc3a9cad2a242959e30618cc2f21b23a1a0e9320/src/event-winder.cr#L15" target="_blank">View source</a>]
+          [<a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L45" target="_blank">View source</a>]
         
       </div>
     </div>
   
+
+
+  
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="initialize-instance-method">
+      <div class="signature">
+        
+        def <strong>initialize</strong>
+
+        <a class="method-permalink" href="#initialize-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L1" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
 
 
 </div>

@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.6.2">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="event-winder">
 
@@ -22,9 +23,14 @@
 
 <svg class="hidden">
   <symbol id="octicon-link" viewBox="0 0 16 16">
-    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+    <path fill="currentColor" fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
   </symbol>
 </svg>
+<input type="checkbox" id="sidebar-btn">
+<label for="sidebar-btn" id="sidebar-btn-label">
+  <svg class="open" xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 512 512"><title>Open Sidebar</title><path fill="currentColor" d="M80 96v64h352V96H80zm0 112v64h352v-64H80zm0 112v64h352v-64H80z"></path></svg>
+  <svg class="close" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 512 512"><title>Close Sidebar</title><path fill="currentColor" d="m118.6 73.4-45.2 45.2L210.7 256 73.4 393.4l45.2 45.2L256 301.3l137.4 137.3 45.2-45.2L301.3 256l137.3-137.4-45.2-45.2L256 210.7Z"></path></svg>
+</label>
 <div class="sidebar">
   <div class="sidebar-header">
     <div class="search-box">
@@ -80,12 +86,16 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">abstract struct</span> EventWinder::Emitted
+  <span class="kind">
+    abstract struct
+  </span> EventWinder::<wbr>Emitted
 
 </h1>
 
 
   <ul class="superclass-hierarchy"><li class="superclass"><a href="../EventWinder/Emitted.html">EventWinder::Emitted</a></li><li class="superclass"><a href="../EventWinder.html">EventWinder</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+
+
 
 
 
@@ -113,7 +123,7 @@
   </h2>
   
     
-      <a href="https://github.com/Xanders/event-winder/blob/bc3a9cad2a242959e30618cc2f21b23a1a0e9320/src/event-winder.cr#L181" target="_blank">
+      <a href="https://github.com/Xanders/event-winder/blob/17176e6fb62e76d66171d914fd2c7df5f4a042ce/src/event-winder.cr#L215" target="_blank">
         event-winder.cr
       </a>
     
@@ -143,17 +153,18 @@
 
 
 
-
-
-
-
-
-
-
-
-<div class="methods-inherited">
   
+
+  
+
+  
+
+  
+
+
+  <div class="methods-inherited">
     
+      
 
   <h3>Instance methods inherited from struct <code><a href="../EventWinder.html">EventWinder</a></code></h3>
   
@@ -165,7 +176,7 @@
   
 
 
-    
+      
 
   <h3>Constructor methods inherited from struct <code><a href="../EventWinder.html">EventWinder</a></code></h3>
   
@@ -177,57 +188,104 @@
   
 
 
-    
+      
 
   <h3>Class methods inherited from struct <code><a href="../EventWinder.html">EventWinder</a></code></h3>
   
   
+    <a href="../EventWinder.html#drain%28timeout%3ATime%3A%3ASpan%3D5.seconds%29%3ABool-class-method" class="tooltip">
+      <span>drain(timeout : Time::Span = <span class="n">5</span>.seconds) : Bool</span>
+    drain</a>, 
+    
+  
     <a href="../EventWinder.html#handle_error%28error%3AException%2Cpayload_inspect%3AString%3D%22nopayload%22%29-class-method" class="tooltip">
       <span>handle_error(error : Exception, payload_inspect : String = <span class="s">&quot;no payload&quot;</span>)</span>
-    handle_error</a>
+    handle_error</a>, 
+    
+  
+    <a href="../EventWinder.html#pending_handlings%3AInt32-class-method" class="tooltip">
+      <span>pending_handlings : Int32</span>
+    pending_handlings</a>
     
   
 
 
+      
+
+  <h3>Macros inherited from struct <code><a href="../EventWinder.html">EventWinder</a></code></h3>
   
+  
+    <a href="../EventWinder.html#emit%28type%2C%2Apayload%29-macro" class="tooltip">
+      <span>emit(type, *payload)</span>
+    emit</a>, 
     
+  
+    <a href="../EventWinder.html#handle_errors_with%28%26block%29-macro" class="tooltip">
+      <span>handle_errors_with(&block)</span>
+    handle_errors_with</a>, 
+    
+  
+    <a href="../EventWinder.html#on%28type%2Ccapacity%3D0%2C%26block%29-macro" class="tooltip">
+      <span>on(type, capacity = <span class="n">0</span>, &block)</span>
+    on</a>, 
+    
+  
+    <a href="../EventWinder.html#register%28type%2Cpayload%3Dnil%2Cerror_handler%3Dnil%29-macro" class="tooltip">
+      <span>register(type, payload = <span class="n">nil</span>, error_handler = <span class="n">nil</span>)</span>
+    register</a>
+    
+  
 
 
     
+      
+
+
+      
+
+
+      
+
+
+      
 
 
     
+      
 
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+  </div>
 
   
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
 
   
-</div>
 
-
-
-
-
-
-
+  
 
 
 </div>
