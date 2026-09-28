@@ -195,7 +195,7 @@ describe EventWinder do
 
     typical_event_test do |test_finish|
       EventWinder.on OrderedEvent do |message|
-        sleep rand / 4
+        sleep (rand / 4).seconds
         result.push message
         test_finish.send true if message == "Three"
       end

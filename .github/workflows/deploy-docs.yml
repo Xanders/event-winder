@@ -10,10 +10,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
       - name: Generate docs
-        run: crystal docs
+        run: docker compose run --rm crystal docs
       - name: Publish the docs
         uses: JamesIves/github-pages-deploy-action@v4
         with:

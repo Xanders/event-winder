@@ -5,12 +5,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
       - name: Run linter
-        run: crystal tool format --check
+        run: docker compose run --rm crystal tool format --check
       - name: Run tests
-        run: export EVENT_WINDER_RUNTIME_ERRORS=true && crystal spec
+        run: docker compose run --rm -e EVENT_WINDER_RUNTIME_ERRORS=true crystal spec
