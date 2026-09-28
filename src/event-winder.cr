@@ -1,4 +1,44 @@
 abstract struct EventWinder
+  # Raised synchronously by `emit` when a bounded event cannot accept work.
+  class QueueFull < Exception
+  end
+
+  # :nodoc:
+  class PendingCounter
+    @pending = Atomic(Int32).new(0)
+
+    def initialize(@event_name : String, @limit : Int32? = nil, @overflow : Symbol = :raise)
+      if limit = @limit
+        raise ArgumentError.new("max_pending must be positive") unless limit > 0
+      end
+      unless @overflow.in?(:raise, :block, :drop)
+        raise ArgumentError.new("overflow must be :raise, :block, or :drop")
+      end
+    end
+
+    def reserve(count : Int32) : Bool
+      return true if count == 0
+      loop do
+        current = @pending.get
+        if (limit = @limit) && count > limit - current
+          return false if @overflow == :drop
+          # A fan-out larger than the entire limit can never fit, even after waiting.
+          if @overflow == :raise || count > limit
+            raise QueueFull.new("#{@event_name}: #{count} handler calls exceed available capacity (#{current}/#{limit} pending)")
+          end
+          sleep 1.millisecond
+        else
+          _, reserved = @pending.compare_and_set(current, current + count)
+          return true if reserved
+        end
+      end
+    end
+
+    def release
+      @pending.sub(1)
+    end
+  end
+
   @@pending_handlings = Atomic(Int32).new(0)
 
   # Number of handler calls that were emitted but have not finished yet.
@@ -11,17 +51,17 @@ abstract struct EventWinder
   #
   # Call this after stopping event producers during graceful shutdown.
   def self.drain(timeout : Time::Span = 5.seconds) : Bool
-    deadline = Time.monotonic + timeout
+    deadline = Time.instant + timeout
     loop do
       return true if pending_handlings == 0
-      return false if Time.monotonic >= deadline
+      return false if Time.instant >= deadline
       sleep 1.millisecond
     end
   end
 
   # :nodoc:
-  def self.handling_started
-    @@pending_handlings.add(1)
+  def self.handling_started(count : Int32 = 1)
+    @@pending_handlings.add(count)
   end
 
   # :nodoc:
@@ -42,8 +82,13 @@ abstract struct EventWinder
   # You also can use *self.name* to get the current
   # event type, which is useful for global error
   # handler (see `handle_errors_with`).
-  macro register(type, payload = nil, error_handler = nil)
+  # *max_pending* limits queued plus active handler calls for this event type.
+  # *overflow* is `:raise` (default), `:block`, or `:drop`.
+  macro register(type, payload = nil, error_handler = nil, max_pending = nil, overflow = :raise)
     abstract struct {{type}} < EventWinder
+      # :nodoc:
+      PENDING = EventWinder::PendingCounter.new(name, {{max_pending}}, {{overflow}})
+
       HANDLERS = [] of Channel(
         {% if payload.nil? %}
           Time
@@ -62,41 +107,47 @@ abstract struct EventWinder
     end
   end
 
-  # Emits an event, optionally with *payload*
+  # Emits an event, optionally with *payload*, evaluated once in the caller.
+  # Returns `true` if accepted, or `false` for an overflowing `:drop` event.
+  # Admission is all-or-nothing across the event's handlers.
   macro emit(type, *payload)
     %emit_time = Time.utc
+    %message = {% if payload.size > 0 %}
+                 { %emit_time, {{payload.splat}} }
+               {% else %}
+                 %emit_time
+               {% end %}
+    %handlers = {{type}}::HANDLERS.dup
 
-    if EventWinder::Emitted::HANDLERS.any?
-      %event_name = {{type}}.name
-      %number_of_handlers = {{type}}::HANDLERS.size
+    if {{type}}::PENDING.reserve(%handlers.size)
+      EventWinder.handling_started(%handlers.size)
 
-      EventWinder::Emitted::HANDLERS.each do |%handler|
-        EventWinder.handling_started
-        spawn name: "EventWinder::Emitted event-winder emitter" do
-          %handler.send({
-            %emit_time,
-            %event_name,
-            %emit_time,
-            %number_of_handlers
-          })
+      if {{type}} != EventWinder::Emitted && {{type}} != EventWinder::Handled
+        %event_name = {{type}}.name
+        %number_of_handlers = %handlers.size
+
+        EventWinder::Emitted::HANDLERS.each do |%handler|
+          EventWinder::Emitted::PENDING.reserve(1)
+          EventWinder.handling_started
+          spawn name: "EventWinder::Emitted event-winder emitter" do
+            %handler.send({
+              %emit_time,
+              %event_name,
+              %emit_time,
+              %number_of_handlers
+            })
+          end
         end
       end
-    end
 
-    {{type}}::HANDLERS.each do |%handler|
-      EventWinder.handling_started
-      spawn name: "{{type}} event-winder emitter" do
-        %handler.send(
-          {% if payload.size > 0 %}
-            {
-              %emit_time,
-              {{payload.splat}}
-            }
-          {% else %}
-            %emit_time
-          {% end %}
-        )
+      %handlers.each do |%handler|
+        spawn name: "{{type}} event-winder emitter" do
+          %handler.send(%message)
+        end
       end
+      true
+    else
+      false
     end
   end
 
@@ -115,7 +166,6 @@ abstract struct EventWinder
   # Usually you should not use it because every emit
   # performs in its own fiber.
   #
-  # TODO: specs for *capacity* argument, is it possible?
   macro on(type, capacity = 0, &block)
     {% payload_type = type.resolve.constant("HANDLERS").of.type_vars[0].resolve %}
 
@@ -126,7 +176,6 @@ abstract struct EventWinder
       {% if env("EVENT_WINDER_RUNTIME_ERRORS") == "true" %}
         raise {{error_message}}
       {% else %}
-        # TODO: specs for compile-time exceptions, is it possible?
         {% raise error_message %}
       {% end %}
     {% else %} # We need else instead of the simple guard not to produce syntax errors
@@ -136,18 +185,20 @@ abstract struct EventWinder
 
       spawn name: "{{type}} event-winder handler" do
         loop do
+          {% if block.args.empty? %}
+            %emit_time = %channel{type}.receive
+          {% else %}
+            %emit_time, {{block.args.splat}} = %channel{type}.receive
+          {% end %}
+
+          %start_of_handling_time = Time.utc
+          %success = true
+
           begin
-            {% if block.args.empty? %}
-              %emit_time = %channel{type}.receive
-            {% else %}
-              %emit_time, {{block.args.splat}} = %channel{type}.receive
-            {% end %}
-
-            %start_of_handling_time = Time.utc
-
             {{yield}}
 
           rescue %error
+            %success = false
             {% if block.args.empty? %}
               {{type}}.handle_error(%error)
             {% else %}
@@ -155,8 +206,7 @@ abstract struct EventWinder
             {% end %}
 
           ensure
-            if %emit_time && %start_of_handling_time && # It's not failed before handling
-               EventWinder::Handled::HANDLERS.any? && # Monitoring enabled
+            if EventWinder::Handled::HANDLERS.any? && # Monitoring enabled
                # It's not the monitoring event itself
                {{type}} != EventWinder::Emitted &&
                {{type}} != EventWinder::Handled
@@ -164,9 +214,8 @@ abstract struct EventWinder
               %event_name = {{type}}.name
               %queue_time_span = %start_of_handling_time - %emit_time
               %handle_time_span = Time.utc - %start_of_handling_time
-              %success = !%error
-
               EventWinder::Handled::HANDLERS.each do |%handler|
+                EventWinder::Handled::PENDING.reserve(1)
                 EventWinder.handling_started
                 spawn name: "EventWinder::Handled event-winder emitter" do
                   %handler.send({
@@ -180,6 +229,7 @@ abstract struct EventWinder
                 end
               end
             end
+            {{type}}::PENDING.release
             EventWinder.handling_finished
           end
         end

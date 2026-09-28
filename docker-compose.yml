@@ -1,7 +1,8 @@
 services:
   crystal:
-    image: crystallang/crystal:1.7.0-alpine
+    image: crystallang/crystal:1.21.1-alpine
     entrypoint: crystal
+    network_mode: none
     working_dir: /project
     volumes:
       - '.:/project'
