@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Crystal Docs 1.20.3">
-<meta name="crystal_docs.project_version" content="main">
+<meta name="crystal_docs.project_version" content="1.2.0">
 <meta name="crystal_docs.project_name" content="event-winder">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="js/doc.js"></script>
 
   <meta name="repository-name" content="event-winder">
-  <title>event-winder main</title>
+  <title>event-winder 1.2.0</title>
   <script type="text/javascript">
   CrystalDocs.base_path = "";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        main
+        1.2.0
       </span>
     </div>
   </div>
@@ -69,6 +69,11 @@
   
   <li class=" " data-id="event-winder/EventWinder/Handled" data-name="eventwinder::handled">
       <a href="EventWinder/Handled.html">Handled</a>
+      
+    </li>
+  
+  <li class=" " data-id="event-winder/EventWinder/QueueFull" data-name="eventwinder::queuefull">
+      <a href="EventWinder/QueueFull.html">QueueFull</a>
       
     </li>
   
@@ -110,6 +115,8 @@ provides error handling and simple monitoring.</p>
     <use href="#octicon-link"/>
   </svg>
 </a>Installation</h2>
+<p>Requires Crystal <strong>1.21.1 or newer</strong>. Development and CI use the pinned
+<code>crystallang/crystal:1.21.1-alpine</code> Docker image.</p>
 <ol>
 <li>
 <p>Add the dependency to your <code>shard.yml</code>:</p>
@@ -140,7 +147,8 @@ provides error handling and simple monitoring.</p>
   puts <span class="s">&quot;Wow, I can have any number of handlers!&quot;</span>
 <span class="k">end</span></code></pre>
 <p>Finally, emit the event!</p>
-<pre><code class="language-crystal"><span class="t">EventWinder</span>.emit <span class="t">MyCoolEvent</span> <span class="c"># Shows two strings on the screen</span></code></pre>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.emit <span class="t">MyCoolEvent</span> <span class="c"># Shows two strings on the screen</span>
+<span class="t">EventWinder</span>.drain <span class="c"># Wait for the two handlers before exiting this short program</span></code></pre>
 <h3><a id="scope" class="anchor" href="#scope">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -197,6 +205,53 @@ user <span class="o">=</span> <span class="t">User</span>.new
 <span class="k">end</span>
 
 <span class="t">EventWinder</span>.emit <span class="t">User</span><span class="t">::</span><span class="t">Connected</span>, <span class="s">&quot;John Smith&quot;</span>, <span class="n">8</span></code></pre>
+<p>Payload expressions are evaluated <strong>once, synchronously in the calling fiber</strong>,
+even when there are no subscribers. Every subscriber receives the same evaluated
+values. Reference objects are shared, not deep-copied: avoid mutating them while
+handlers are using them. If evaluation raises, the exception reaches the caller
+and no handler calls or monitoring events are queued.</p>
+<h3><a id="optional-queue-limit" class="anchor" href="#optional-queue-limit">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Optional queue limit</h3>
+<p>By default, pending work is unlimited. Set <code>max_pending</code> on registration to limit
+the total number of <strong>queued plus active handler calls for this event type</strong>:</p>
+<pre><code class="language-crystal"><span class="t">EventWinder</span>.register <span class="t">WorkReady</span>, payload: <span class="t">String</span>, max_pending: <span class="n">100</span>, overflow: <span class="n">:raise</span>
+
+<span class="t">EventWinder</span>.on <span class="t">WorkReady</span> <span class="k">do</span> <span class="o">|</span>work<span class="o">|</span>
+  puts work
+<span class="k">end</span>
+
+<span class="k">begin</span>
+  <span class="t">EventWinder</span>.emit <span class="t">WorkReady</span>, <span class="s">&quot;job&quot;</span>
+<span class="k">rescue</span> <span class="t">EventWinder</span><span class="t">::</span><span class="t">QueueFull</span>
+  puts <span class="s">&quot;Queue full; try again later&quot;</span>
+<span class="k">end</span></code></pre>
+<p>The optional <code>overflow</code> parameter selects what happens when the limit is reached:</p>
+<p>| Policy | Behavior of <code>emit</code> |
+| --- | --- |
+| <code>:raise</code> (default) | Raises <code><a href="EventWinder/QueueFull.html">EventWinder::QueueFull</a></code> synchronously. |
+| <code>:block</code> | Yields the calling fiber until enough capacity becomes available, then returns <code>true</code>. |
+| <code>:drop</code> | Discards the entire new event and returns <code>false</code>. |</p>
+<p>Accepted emissions return <code>true</code>. Admission is all-or-nothing across the event's
+current subscribers: rejection never delivers to only part of them. With two
+subscribers each emission reserves two slots; <code>max_pending: 100</code> therefore admits
+50 emissions while both subscribers remain busy. Slots are released after each
+handler and its error handler finish. No subscribers means no slots are needed.</p>
+<p><code>max_pending</code> must be a positive <code>Int32</code>, or <code>nil</code> for unlimited work. If one
+emission needs more slots than the entire limit, <code>:block</code> raises <code>QueueFull</code>
+instead of waiting forever; <code>:drop</code> still returns <code>false</code>. Payload evaluation
+happens before admission, including for rejected or blocked emissions.</p>
+<p><code>:block</code> has no timeout or fairness guarantee. Do not use it to emit recursively
+from a handler (or error handler) when progress depends on that same handler
+finishing: that can deadlock. Stop and join producers, including blocked ones,
+before calling <code>drain</code>. The limit bounds accepted handler calls, not the number
+of producer fibers that the application itself creates while waiting.</p>
+<p>The limit is separate from <code>on(..., capacity: ...)</code>, which only sets the channel
+buffer size. Monitoring events have their own unlimited queues and are included
+in the global <code>pending_handlings</code> count, not in the originating event's limit.
+Rejected emissions produce no <code>Emitted</code> or <code>Handled</code> notifications.</p>
 <h3><a id="error-handling" class="anchor" href="#error-handling">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -230,8 +285,12 @@ You also can use <code>self.name</code> to get current event.</p>
     puts <span class="s">&quot;I have a sneaky way!&quot;</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
-<p>If you do not use any of them for some handler, the program
-will crash at the first error that occurs in it.</p>
+<p>Without an error handler, the exception is re-raised in the handler fiber.
+Crystal reports the unhandled exception and terminates that fiber; this does
+not guarantee termination of the whole process. Later calls queued for that
+handler cannot complete. Configure an error handler that returns normally if
+processing should continue after failures. Exceptions from payload evaluation
+or queue admission occur in the caller and should be rescued around <code>emit</code>.</p>
 <p><strong>Note:</strong> both global and per-event handlers are not capturing
 the context. That does not work:</p>
 <pre><code class="language-crystal">my_shiny_local_variable <span class="o">=</span> <span class="s">&quot;Wow, so cool, wuf-wuf!&quot;</span>
@@ -322,12 +381,14 @@ a new event of the same type for this handler will wait in
 a queue. Queue exists only in memory, so interrupting
 the program will cause the loss of all events. So,
 <strong>EventWinder guarantees at-most-once delivery and order
-of events in the same handler</strong>. Queues are limited by
-the possible number of fibers.</p>
+of events from a single producer in the same handler</strong>. Concurrent producers
+have no defined relative ordering. Set <code>max_pending</code> to bound accepted work;
+otherwise queues are limited only by available resources. Register handlers
+before starting concurrent producers.</p>
 <pre><code class="language-crystal"><span class="t">EventWinder</span>.register <span class="t">SomeEvent</span>, payload: <span class="t">String</span>
 
 <span class="t">EventWinder</span>.on <span class="t">SomeEvent</span> <span class="k">do</span> <span class="o">|</span>message<span class="o">|</span>
-  sleep rand
+  sleep rand.seconds
   puts message
 <span class="k">end</span>
 
@@ -338,6 +399,7 @@ the possible number of fibers.</p>
 <span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>, <span class="s">&quot;One&quot;</span>
 <span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>, <span class="s">&quot;Two&quot;</span>
 <span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>, <span class="s">&quot;Three&quot;</span>
+<span class="t">EventWinder</span>.drain
 
 <span class="c"># Fast!</span>
 <span class="c"># Fast!</span>
@@ -345,28 +407,21 @@ the possible number of fibers.</p>
 <span class="c"># One</span>
 <span class="c"># Two</span>
 <span class="c"># Three</span></code></pre>
-<p>As a side effect of such design, you cannot modify local
-variables in the handler:</p>
+<p>Handlers can read and modify captured local variables. Because handling is
+asynchronous, wait for completion before reading the result:</p>
 <pre><code class="language-crystal"><span class="t">EventWinder</span>.register <span class="t">SomeEvent</span>
 
 variable <span class="o">=</span> <span class="s">&quot;initial&quot;</span>
 
-normal_proc <span class="o">=</span> <span class="o">-&gt;</span> <span class="k">do</span>
-  variable <span class="o">=</span> <span class="s">&quot;modified_from_proc&quot;</span>
-<span class="k">end</span>
-
-normal_proc.call
-puts variable <span class="c"># modified_from_proc</span>
-
 <span class="t">EventWinder</span>.on <span class="t">SomeEvent</span> <span class="k">do</span>
-  puts variable <span class="c"># you can read variables</span>
-  variable <span class="o">=</span> <span class="s">&quot;modified_from_handler&quot;</span> <span class="c"># but modify only local copies</span>
+  variable <span class="o">=</span> <span class="s">&quot;modified_from_handler&quot;</span>
 <span class="k">end</span>
 
 <span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>
+raise <span class="s">&quot;Handlers did not finish&quot;</span> <span class="k">unless</span> <span class="t">EventWinder</span>.drain
 
-puts variable <span class="c"># modified_from_proc</span></code></pre>
-<p>But mutable structures are OK:</p>
+puts variable <span class="c"># modified_from_handler</span></code></pre>
+<p>Mutable structures can also be shared; the same completion rule applies:</p>
 <pre><code class="language-crystal">array <span class="o">=</span> <span class="o">[]</span> <span class="k">of</span> <span class="t">String</span>
 
 <span class="t">EventWinder</span>.on <span class="t">SomeEvent</span> <span class="k">do</span>
@@ -374,8 +429,11 @@ puts variable <span class="c"># modified_from_proc</span></code></pre>
 <span class="k">end</span>
 
 <span class="t">EventWinder</span>.emit <span class="t">SomeEvent</span>
+raise <span class="s">&quot;Handlers did not finish&quot;</span> <span class="k">unless</span> <span class="t">EventWinder</span>.drain
 
 puts array <span class="c"># [&quot;Mutable structures are bad (or not)&quot;]</span></code></pre>
+<p>Use appropriate synchronization if application fibers access shared state
+concurrently. <code>drain</code> waits for completion; it is not a lock around shared data.</p>
 <p>There are a few other possible design choices. For example,
 I can emit the event without creating a fiber. In this case,
 every <code>emit</code> will stop until the last handler will receive
@@ -398,10 +456,18 @@ for communications outside of one process.</p>
     <use href="#octicon-link"/>
   </svg>
 </a>Development</h2>
-<p>I'm using <a href="https://www.docker.com">Docker</a> for library development.
-If you have Docker available, you can use the <code>make</code> command
-to see the help, powered by <a href="https://github.com/Xanders/make-help">make-help</a> project.
-There are commands for testing, formatting, and documentation.</p>
+<p>Run all development checks through <a href="https://www.docker.com">Docker</a>; no local
+Crystal installation is needed. The same Compose service is used by CI:</p>
+<pre><code class="language-sh">docker compose run --rm -e EVENT_WINDER_RUNTIME_ERRORS=true crystal spec
+docker compose run --rm crystal tool format --check
+docker compose run --rm crystal docs</code></pre>
+<p>Use <code>docker compose run --rm crystal tool format</code> to apply formatting.
+The test suite also launches isolated Crystal processes <strong>inside the container</strong>
+to verify the default error handler and real compile-time diagnostics without
+the test-only <code>EVENT_WINDER_RUNTIME_ERRORS</code> setting. <code>.gitattributes</code> keeps source
+line endings consistent across Windows and Linux.</p>
+<p>Equivalent <code>make test</code>, <code>make lint</code>, <code>make lint!</code>, and <code>make docs</code> targets are
+available. <code>make</code> shows help powered by <a href="https://github.com/Xanders/make-help">make-help</a>.</p>
 <h2><a id="contributing" class="anchor" href="#contributing">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
