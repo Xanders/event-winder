@@ -16,6 +16,8 @@ EventWinder.register Concurrent, max_pending: 3
 EventWinder.register IndependentFirst, max_pending: 1
 EventWinder.register IndependentSecond, max_pending: 1
 EventWinder.register Recovering, payload: Bool, error_handler: -> { }, max_pending: 1
+EventWinder.register RepeatedEmission, payload: Int32
+EventWinder.register RepeatedDrop, payload: Int32, max_pending: 1, overflow: :drop
 
 def fail_to_build_payload : Int32
   raise "payload failed"
@@ -69,6 +71,38 @@ describe "production macro expansion" do
     tuple = {"changed", 2}
     EventWinder.drain(1.second).should be_true
     values.should eq([{"original", 1}])
+  end
+
+  it "snapshots each payload when one emission callsite repeats in a while loop" do
+    values = [] of Int32
+    counter = Atomic(Int32).new(0)
+    EventWinder.on RepeatedEmission do |value|
+      values << value
+    end
+    index = 0
+    while index < 10
+      EventWinder.emit RepeatedEmission, counter.add(1)
+      index += 1
+    end
+    EventWinder.drain(1.second).should be_true
+    values.should eq((0...10).to_a)
+  end
+
+  it "never substitutes a dropped loop emission for an accepted payload" do
+    values = [] of Int32
+    accepted = [] of Bool
+    counter = Atomic(Int32).new(0)
+    EventWinder.on RepeatedDrop do |value|
+      values << value
+    end
+    index = 0
+    while index < 2
+      accepted << EventWinder.emit(RepeatedDrop, counter.add(1))
+      index += 1
+    end
+    accepted.should eq([true, false])
+    EventWinder.drain(1.second).should be_true
+    values.should eq([0])
   end
 
   it "propagates payload exceptions synchronously without leaking capacity or monitoring" do

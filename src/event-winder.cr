@@ -141,9 +141,7 @@ abstract struct EventWinder
       end
 
       %handlers.each do |%handler|
-        spawn name: "{{type}} event-winder emitter" do
-          %handler.send(%message)
-        end
+        spawn %handler.send(%message), name: "{{type}} event-winder emitter"
       end
       true
     else
