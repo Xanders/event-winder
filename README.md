@@ -25,6 +25,9 @@ provides error handling and simple monitoring.
 
 ## Installation
 
+Requires Crystal **1.21.1 or newer**. Development and CI use the pinned
+`crystallang/crystal:1.21.1-alpine` Docker image.
+
 1. Add the dependency to your `shard.yml`:
 
    ```yaml
@@ -63,6 +66,7 @@ Finally, emit the event!
 
 ```crystal
 EventWinder.emit MyCoolEvent # Shows two strings on the screen
+EventWinder.drain # Wait for the two handlers before exiting this short program
 ```
 
 ### Scope
@@ -131,6 +135,61 @@ end
 EventWinder.emit User::Connected, "John Smith", 8
 ```
 
+Payload expressions are evaluated **once, synchronously in the calling fiber**,
+even when there are no subscribers. Every subscriber receives the same evaluated
+values. Reference objects are shared, not deep-copied: avoid mutating them while
+handlers are using them. If evaluation raises, the exception reaches the caller
+and no handler calls or monitoring events are queued.
+
+### Optional queue limit
+
+By default, pending work is unlimited. Set `max_pending` on registration to limit
+the total number of **queued plus active handler calls for this event type**:
+
+```crystal
+EventWinder.register WorkReady, payload: String, max_pending: 100, overflow: :raise
+
+EventWinder.on WorkReady do |work|
+  puts work
+end
+
+begin
+  EventWinder.emit WorkReady, "job"
+rescue EventWinder::QueueFull
+  puts "Queue full; try again later"
+end
+```
+
+The optional `overflow` parameter selects what happens when the limit is reached:
+
+| Policy | Behavior of `emit` |
+| --- | --- |
+| `:raise` (default) | Raises `EventWinder::QueueFull` synchronously. |
+| `:block` | Yields the calling fiber until enough capacity becomes available, then returns `true`. |
+| `:drop` | Discards the entire new event and returns `false`. |
+
+Accepted emissions return `true`. Admission is all-or-nothing across the event's
+current subscribers: rejection never delivers to only part of them. With two
+subscribers each emission reserves two slots; `max_pending: 100` therefore admits
+50 emissions while both subscribers remain busy. Slots are released after each
+handler and its error handler finish. No subscribers means no slots are needed.
+
+`max_pending` must be a positive `Int32`, or `nil` for unlimited work. If one
+emission needs more slots than the entire limit, `:block` raises `QueueFull`
+instead of waiting forever; `:drop` still returns `false`. Payload evaluation
+happens before admission, including for rejected or blocked emissions.
+
+`:block` has no timeout or fairness guarantee. Do not use it to emit recursively
+from a handler (or error handler) when progress depends on that same handler
+finishing: that can deadlock. Stop and join producers, including blocked ones,
+before calling `drain`. The limit bounds accepted handler calls, not the number
+of producer fibers that the application itself creates while waiting.
+
+The limit is separate from `on(..., capacity: ...)`, which only sets the channel
+buffer size. Monitoring events have their own unlimited queues and are included
+in the global `pending_handlings` count, not in the originating event's limit.
+Rejected emissions produce no `Emitted` or `Handled` notifications.
+
 ### Error handling
 
 There are several ways to deal with errors in event handlers.
@@ -170,8 +229,12 @@ EventWinder.on SomeBoringEvent do
 end
 ```
 
-If you do not use any of them for some handler, the program
-will crash at the first error that occurs in it.
+Without an error handler, the exception is re-raised in the handler fiber.
+Crystal reports the unhandled exception and terminates that fiber; this does
+not guarantee termination of the whole process. Later calls queued for that
+handler cannot complete. Configure an error handler that returns normally if
+processing should continue after failures. Exceptions from payload evaluation
+or queue admission occur in the caller and should be rescued around `emit`.
 
 **Note:** both global and per-event handlers are not capturing
 the context. That does not work:
@@ -265,14 +328,16 @@ a new event of the same type for this handler will wait in
 a queue. Queue exists only in memory, so interrupting
 the program will cause the loss of all events. So,
 **EventWinder guarantees at-most-once delivery and order
-of events in the same handler**. Queues are limited by
-the possible number of fibers.
+of events from a single producer in the same handler**. Concurrent producers
+have no defined relative ordering. Set `max_pending` to bound accepted work;
+otherwise queues are limited only by available resources. Register handlers
+before starting concurrent producers.
 
 ```crystal
 EventWinder.register SomeEvent, payload: String
 
 EventWinder.on SomeEvent do |message|
-  sleep rand
+  sleep rand.seconds
   puts message
 end
 
@@ -283,6 +348,7 @@ end
 EventWinder.emit SomeEvent, "One"
 EventWinder.emit SomeEvent, "Two"
 EventWinder.emit SomeEvent, "Three"
+EventWinder.drain
 
 # Fast!
 # Fast!
@@ -292,32 +358,25 @@ EventWinder.emit SomeEvent, "Three"
 # Three
 ```
 
-As a side effect of such design, you cannot modify local
-variables in the handler:
+Handlers can read and modify captured local variables. Because handling is
+asynchronous, wait for completion before reading the result:
 
 ```crystal
 EventWinder.register SomeEvent
 
 variable = "initial"
 
-normal_proc = -> do
-  variable = "modified_from_proc"
-end
-
-normal_proc.call
-puts variable # modified_from_proc
-
 EventWinder.on SomeEvent do
-  puts variable # you can read variables
-  variable = "modified_from_handler" # but modify only local copies
+  variable = "modified_from_handler"
 end
 
 EventWinder.emit SomeEvent
+raise "Handlers did not finish" unless EventWinder.drain
 
-puts variable # modified_from_proc
+puts variable # modified_from_handler
 ```
 
-But mutable structures are OK:
+Mutable structures can also be shared; the same completion rule applies:
 
 ```crystal
 array = [] of String
@@ -327,9 +386,13 @@ EventWinder.on SomeEvent do
 end
 
 EventWinder.emit SomeEvent
+raise "Handlers did not finish" unless EventWinder.drain
 
 puts array # ["Mutable structures are bad (or not)"]
 ```
+
+Use appropriate synchronization if application fibers access shared state
+concurrently. `drain` waits for completion; it is not a lock around shared data.
 
 There are a few other possible design choices. For example,
 I can emit the event without creating a fiber. In this case,
@@ -354,10 +417,23 @@ for communications outside of one process.
 
 ## Development
 
-I'm using [Docker](https://www.docker.com) for library development.
-If you have Docker available, you can use the `make` command
-to see the help, powered by [make-help](https://github.com/Xanders/make-help) project.
-There are commands for testing, formatting, and documentation.
+Run all development checks through [Docker](https://www.docker.com); no local
+Crystal installation is needed. The same Compose service is used by CI:
+
+```sh
+docker compose run --rm -e EVENT_WINDER_RUNTIME_ERRORS=true crystal spec
+docker compose run --rm crystal tool format --check
+docker compose run --rm crystal docs
+```
+
+Use `docker compose run --rm crystal tool format` to apply formatting.
+The test suite also launches isolated Crystal processes **inside the container**
+to verify the default error handler and real compile-time diagnostics without
+the test-only `EVENT_WINDER_RUNTIME_ERRORS` setting. `.gitattributes` keeps source
+line endings consistent across Windows and Linux.
+
+Equivalent `make test`, `make lint`, `make lint!`, and `make docs` targets are
+available. `make` shows help powered by [make-help](https://github.com/Xanders/make-help).
 
 ## Contributing
 
