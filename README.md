@@ -65,7 +65,7 @@ end
 Finally, emit the event!
 
 ```crystal
-EventWinder.emit MyCoolEvent
+EventWinder.emit MyCoolEvent # Shows two strings on the screen
 EventWinder.drain # Wait for the two handlers before exiting this short program
 ```
 
